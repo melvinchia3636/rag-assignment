@@ -1,3 +1,42 @@
+/* Global font for the entire app */
+.root {
+  -fx-font-family: "Arial"; /* Default font for everything */
+  -fx-font-size: 14px;
+}
+
+/* Style for Labels */
+.label {
+  -fx-font-family: "Georgia";
+  -fx-font-size: 14px;
+  -fx-text-fill: #333333; /* slightly darker for readability */
+}
+
+/* Style for specific session labels */
+#sessionNameLabel {
+  -fx-font-family: "Georgia Italic";
+  -fx-font-size: 18px; /* keeps your original size */
+  -fx-font-weight: bold;
+}
+
+#sessionCreatedLabel {
+  -fx-font-family: "Georgia";
+  -fx-font-size: 12px;
+  -fx-text-fill: #909090; /* your original color */
+}
+
+/* Style for Buttons */
+.button {
+  -fx-font-family: "Verdana";
+  -fx-font-size: 13px;
+  -fx-background-color: #f5f5f5;
+  -fx-border-radius: 4;
+  -fx-background-radius: 4;
+}
+
+.button:hover {
+  -fx-background-color: #e0e0e0;
+}
+
 .menu-button > .arrow-button {
   -fx-padding: 0;
   -fx-background-color: transparent;
@@ -17,6 +56,8 @@
   -fx-padding: 12 15 12 15;
   -fx-focus-color: transparent;
   -fx-faint-focus-color: transparent;
+  -fx-font-family: "Courier New";
+  -fx-font-size: 14px;
 }
 
 #messageInput .content {
@@ -33,3 +74,11 @@
 #messageInput:focused .content {
   -fx-background-color: transparent;
 }
+
+/* Optional: status label font styling */
+#statusLabel, #modelLabel {
+  -fx-font-family: "Arial";
+  -fx-font-size: 11px;
+  -fx-text-fill: #a0a0a0;
+}
+

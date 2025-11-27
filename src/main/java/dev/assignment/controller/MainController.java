@@ -14,6 +14,9 @@ import javafx.scene.layout.VBox;
 public class MainController {
 
     @FXML
+    private VBox root; 
+
+    @FXML
     private SessionSidebar sessionSidebar;
 
     @FXML
@@ -46,7 +49,10 @@ public class MainController {
     @FXML
     private Button clearSessionButton;
 
+    @FXML
+    private Button toggleThemeButton;
     private ChatSessionController chatSessionController;
+    private boolean isDarkMode = false; //track theme
 
     @FXML
     private void initialize() {
@@ -127,6 +133,11 @@ public class MainController {
         chatContainer.heightProperty().addListener((obs, oldVal, newVal) -> {
             chatScrollPane.setVvalue(1.0);
         });
+
+        //attach toggle button event
+        if (toggleThemeButton != null){
+            toggleThemeButton.setOnAction( e -> handleToggleTheme());
+        }
     }
 
     @FXML
@@ -142,5 +153,17 @@ public class MainController {
     @FXML
     private void handleSendMessage() {
         chatSessionController.handleSendMessage();
+    }
+
+    @FXML
+    private void handleToggleTheme() {
+        var scene = toggleThemeButton.getScene();
+        if (scene.getStylesheets().contains(getClass().getResource("/dev/assignment/dark.css").toExternalForm())) {
+            scene.getStylesheets().remove(getClass().getResource("/dev/assignment/dark.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/dev/assignment/light.css").toExternalForm());
+        } else {
+            scene.getStylesheets().remove(getClass().getResource("/dev/assignment/light.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/dev/assignment/dark.css").toExternalForm());
+        }
     }
 }

@@ -1,0 +1,19 @@
+.root {
+    -fx-background-color: #f9f9f9;
+    -fx-text-fill: #222;
+}
+
+.label-title {
+    -fx-text-fill: #222;
+}
+
+.text-area-content {
+    -fx-background-color: white;
+    -fx-border-color: lightgrey;
+    -fx-text-fill: #222;
+}
+
+.button {
+    -fx-background-color: #409eff;
+    -fx-text-fill: white;
+}
