@@ -11,6 +11,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 
+// >>> ADDED
+import javafx.scene.layout.Pane;
+import javafx.scene.control.ProgressIndicator;
+// <<< ADDED
+
 public class MainController {
 
     @FXML
@@ -51,18 +56,30 @@ public class MainController {
 
     @FXML
     private Button toggleThemeButton;
+
     private ChatSessionController chatSessionController;
     private boolean isDarkMode = false; //track theme
 
+    // >>> ADDED — MATCHES your main.fxml fx:id
+    @FXML private Pane loadingOverlay;
+    @FXML private ProgressIndicator loadingSpinner;
+    // <<< ADDED
+
     @FXML
     private void initialize() {
+
+        // >>> ADDED — hide spinner at startup
+        if (loadingOverlay != null) loadingOverlay.setVisible(false);
+        if (loadingSpinner != null) loadingSpinner.setVisible(false);
+        // <<< ADDED
+
         // Initialize database
         DatabaseService databaseService = DatabaseService.getInstance();
         if (databaseService == null) {
             AlertHelper.showError(
                     "Database Error",
                     "Failed to Initialize Database",
-                    "The application database could not be initialized. Please check file permissions and disk space.\\n\\nThe application will continue with limited functionality.");
+                    "The application database could not be initialized. Please check file permissions and disk space.\n\nThe application will continue with limited functionality.");
 
             // Disable session-related features
             if (sessionSidebar != null) {
@@ -80,11 +97,9 @@ public class MainController {
         APIKeyService apiKeyService = APIKeyService.getInstance();
         boolean hasApiKey = apiKeyService.loadApiKey();
 
-        // Update status based on API key availability and validity
         if (hasApiKey) {
             statusLabel.setText("Validating API Key...");
 
-            // Validate API key in background thread
             new Thread(() -> {
                 boolean isValid = apiKeyService.validateApiKey();
 
@@ -103,6 +118,7 @@ public class MainController {
                     }
                 });
             }).start();
+
         } else {
             statusLabel.setText("No API Key - Chat disabled");
             sendButton.setDisable(true);
@@ -129,16 +145,32 @@ public class MainController {
         // Load sessions
         sessionSidebar.loadSessions();
 
-        // Set up auto-scroll for chat
+        // Auto scroll
         chatContainer.heightProperty().addListener((obs, oldVal, newVal) -> {
             chatScrollPane.setVvalue(1.0);
         });
 
-        //attach toggle button event
+        // Attach toggle theme button
         if (toggleThemeButton != null){
             toggleThemeButton.setOnAction( e -> handleToggleTheme());
         }
     }
+
+    // >>> ADDED — spinner controls
+    private void showLoading() {
+        javafx.application.Platform.runLater(() -> {
+            loadingOverlay.setVisible(true);
+            loadingSpinner.setVisible(true);
+        });
+    }
+
+    private void hideLoading() {
+        javafx.application.Platform.runLater(() -> {
+            loadingOverlay.setVisible(false);
+            loadingSpinner.setVisible(false);
+        });
+    }
+    // <<< ADDED
 
     @FXML
     private void handleManageKnowledgebase() {
@@ -152,7 +184,18 @@ public class MainController {
 
     @FXML
     private void handleSendMessage() {
-        chatSessionController.handleSendMessage();
+
+        // >>> ADDED — show spinner immediately
+        showLoading();
+
+        // wrap original send logic
+        new Thread(() -> {
+            chatSessionController.handleSendMessage();
+
+            // hide after message is processed
+            hideLoading();
+        }).start();
+        // <<< ADDED
     }
 
     @FXML
