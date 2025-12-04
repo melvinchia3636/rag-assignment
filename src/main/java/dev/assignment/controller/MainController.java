@@ -5,21 +5,22 @@ import dev.assignment.service.DatabaseService;
 import dev.assignment.view.AlertHelper;
 import dev.assignment.view.SessionSidebar;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
-
-// >>> ADDED
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.control.ProgressIndicator;
-// <<< ADDED
+
 
 public class MainController {
 
     @FXML
-    private VBox root; 
+    private StackPane root; 
 
     @FXML
     private SessionSidebar sessionSidebar;
@@ -60,18 +61,14 @@ public class MainController {
     private ChatSessionController chatSessionController;
     private boolean isDarkMode = false; //track theme
 
-    // >>> ADDED — MATCHES your main.fxml fx:id
     @FXML private Pane loadingOverlay;
     @FXML private ProgressIndicator loadingSpinner;
-    // <<< ADDED
 
     @FXML
     private void initialize() {
 
-        // >>> ADDED — hide spinner at startup
         if (loadingOverlay != null) loadingOverlay.setVisible(false);
         if (loadingSpinner != null) loadingSpinner.setVisible(false);
-        // <<< ADDED
 
         // Initialize database
         DatabaseService databaseService = DatabaseService.getInstance();
@@ -191,22 +188,52 @@ public class MainController {
         // wrap original send logic
         new Thread(() -> {
             chatSessionController.handleSendMessage();
-
-            // hide after message is processed
-            hideLoading();
+            javafx.application.Platform.runLater(() -> {
+                hideLoading();
+            });
         }).start();
-        // <<< ADDED
     }
 
     @FXML
     private void handleToggleTheme() {
         var scene = toggleThemeButton.getScene();
-        if (scene.getStylesheets().contains(getClass().getResource("/dev/assignment/dark.css").toExternalForm())) {
-            scene.getStylesheets().remove(getClass().getResource("/dev/assignment/dark.css").toExternalForm());
-            scene.getStylesheets().add(getClass().getResource("/dev/assignment/light.css").toExternalForm());
-        } else {
-            scene.getStylesheets().remove(getClass().getResource("/dev/assignment/light.css").toExternalForm());
-            scene.getStylesheets().add(getClass().getResource("/dev/assignment/dark.css").toExternalForm());
+        if (scene == null) return;
+
+        var lightURL = getClass().getResource("/dev/assignment/light.css");
+        var darkURL = getClass().getResource("/dev/assignment/dark.css");
+
+        if (lightURL == null || darkURL == null) {
+            System.out.println("CSS NOT FOUND – check your resource paths!");
+            return;
         }
+
+        String lightCss = lightURL.toExternalForm();
+        String darkCss = darkURL.toExternalForm();
+
+        scene.getStylesheets().removeAll(lightCss, darkCss);
+
+        if (isDarkMode) {
+            scene.getStylesheets().add(lightCss);
+        } else {
+            scene.getStylesheets().add(darkCss);
+        }
+
+        isDarkMode = !isDarkMode;
+    }
+    
+    @FXML
+    private ToggleButton themeSwitch;
+    
+    @FXML
+    private void handleThemeSwitch() {
+        boolean dark = themeSwitch.isSelected();
+        Scene scene = themeSwitch.getScene();
+        if (scene == null) return;
+
+        String darkCss = getClass().getResource("/dev/assignment/dark.css").toExternalForm();
+        String lightCss = getClass().getResource("/dev/assignment/light.css").toExternalForm();
+
+        scene.getStylesheets().removeAll(darkCss, lightCss);
+        scene.getStylesheets().add(dark ? darkCss : lightCss);
     }
 }
